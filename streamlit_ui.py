@@ -3,9 +3,6 @@ from pathlib import Path
 import os
 import shutil
 
-st.set_page_config(page_title="CRUD File Manager", layout="centered")
-
-st.title("📁 CRUD File Handling System")
 
 # ---------------- FILE FUNCTIONS ---------------- #
 
@@ -13,49 +10,49 @@ def create_file(file_name, content):
     p = Path(file_name)
 
     if p.exists():
-        return "FILE ALREADY EXISTS!"
+        return "FILE ALREADY EXISTS"
 
     with open(file_name, 'w') as file:
         file.write(content)
 
-    return "FILE CREATED SUCCESSFULLY!"
+    return "FILE CREATED SUCCESSFULLY"
 
 
 def read_file(file_name):
     p = Path(file_name)
 
-    if p.exists() and p.is_file():
+    if p.exists():
         with open(file_name, 'r') as file:
             return file.read()
 
-    return "FILE NOT FOUND!"
+    return "FILE NOT FOUND"
 
 
 def update_file(file_name, content, mode):
     p = Path(file_name)
 
-    if p.exists():
-        if mode == "Overwrite":
-            with open(file_name, 'w') as file:
-                file.write(content)
+    if not p.exists():
+        return "FILE NOT FOUND"
 
-        elif mode == "Append":
-            with open(file_name, 'a') as file:
-                file.write(content)
+    if mode == "Overwrite":
+        with open(file_name, 'w') as file:
+            file.write(content)
 
-        return "FILE UPDATED!"
+    elif mode == "Append":
+        with open(file_name, 'a') as file:
+            file.write(content)
 
-    return "FILE NOT FOUND!"
+    return "FILE UPDATED"
 
 
 def delete_file(file_name):
     p = Path(file_name)
 
     if p.exists():
-        os.remove(file_name)
-        return "FILE DELETED!"
+        os.remove(p)
+        return "FILE DELETED"
 
-    return "FILE NOT FOUND!"
+    return "FILE NOT FOUND"
 
 
 def rename_file(old_name, new_name):
@@ -63,21 +60,20 @@ def rename_file(old_name, new_name):
 
     if p.exists():
         p.rename(new_name)
-        return "FILE RENAMED!"
+        return "FILE RENAMED"
 
-    return "FILE NOT FOUND!"
+    return "FILE NOT FOUND"
 
-
-# ---------------- FOLDER FUNCTIONS ---------------- #
 
 def create_folder(folder_name):
     p = Path(folder_name)
 
     if p.exists():
-        return "FOLDER ALREADY EXISTS!"
+        return "FOLDER ALREADY EXISTS"
 
     p.mkdir()
-    return "FOLDER CREATED!"
+
+    return "FOLDER CREATED"
 
 
 def delete_folder(folder_name):
@@ -85,15 +81,17 @@ def delete_folder(folder_name):
 
     if p.exists():
         shutil.rmtree(folder_name)
-        return "FOLDER DELETED!"
+        return "FOLDER DELETED"
 
-    return "FOLDER NOT FOUND!"
+    return "FOLDER NOT FOUND"
 
 
-# ---------------- UI ---------------- #
+# ---------------- STREAMLIT UI ---------------- #
+
+st.title("CRUD File Handling System")
 
 menu = st.sidebar.selectbox(
-    "Choose Operation",
+    "Select Operation",
     [
         "Create File",
         "Read File",
@@ -107,10 +105,11 @@ menu = st.sidebar.selectbox(
 
 # CREATE FILE
 if menu == "Create File":
+
     st.header("Create File")
 
-    file_name = st.text_input("Enter file name")
-    content = st.text_area("Enter content")
+    file_name = st.text_input("Enter File Name")
+    content = st.text_area("Enter File Content")
 
     if st.button("Create"):
         result = create_file(file_name, content)
@@ -118,36 +117,43 @@ if menu == "Create File":
 
 # READ FILE
 elif menu == "Read File":
+
     st.header("Read File")
 
-    file_name = st.text_input("Enter file name")
+    file_name = st.text_input("Enter File Name")
 
     if st.button("Read"):
         result = read_file(file_name)
 
-        if result == "FILE NOT FOUND!":
+        if result == "FILE NOT FOUND":
             st.error(result)
         else:
             st.text_area("File Content", result, height=300)
 
 # UPDATE FILE
 elif menu == "Update File":
+
     st.header("Update File")
 
-    file_name = st.text_input("Enter file name")
-    content = st.text_area("Enter new content")
+    file_name = st.text_input("Enter File Name")
 
-    mode = st.radio("Select Update Mode", ["Overwrite", "Append"])
+    update_mode = st.radio(
+        "Select Update Mode",
+        ["Overwrite", "Append"]
+    )
+
+    content = st.text_area("Enter Content")
 
     if st.button("Update"):
-        result = update_file(file_name, content, mode)
+        result = update_file(file_name, content, update_mode)
         st.success(result)
 
 # DELETE FILE
 elif menu == "Delete File":
+
     st.header("Delete File")
 
-    file_name = st.text_input("Enter file name")
+    file_name = st.text_input("Enter File Name")
 
     if st.button("Delete"):
         result = delete_file(file_name)
@@ -155,10 +161,11 @@ elif menu == "Delete File":
 
 # RENAME FILE
 elif menu == "Rename File":
+
     st.header("Rename File")
 
-    old_name = st.text_input("Enter old file name")
-    new_name = st.text_input("Enter new file name")
+    old_name = st.text_input("Enter Old File Name")
+    new_name = st.text_input("Enter New File Name")
 
     if st.button("Rename"):
         result = rename_file(old_name, new_name)
@@ -166,9 +173,11 @@ elif menu == "Rename File":
 
 # CREATE FOLDER
 elif menu == "Create Folder":
+
     st.header("Create Folder")
 
-    folder_name = st.text_input("Enter folder name")
+    folder_name = st.text_input("Enter Folder Name")
+
 
     if st.button("Create Folder"):
         result = create_folder(folder_name)
@@ -176,9 +185,10 @@ elif menu == "Create Folder":
 
 # DELETE FOLDER
 elif menu == "Delete Folder":
+
     st.header("Delete Folder")
 
-    folder_name = st.text_input("Enter folder name")
+    folder_name = st.text_input("Enter Folder Name")
 
     if st.button("Delete Folder"):
         result = delete_folder(folder_name)
